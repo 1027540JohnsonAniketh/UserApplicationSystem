@@ -17,7 +17,7 @@
   c)Spring Security
   d)MySQL
   e)StatsD
-  f)AWS EC2,RDS,S3,Certification Manager,Route 53,CloudWatch,KMS
+  f)AWS EC2,RDS,S3,CodeDeploy,Certification Manager,Route 53,CloudWatch,KMS
 2)<b>ami</b>:This repo has the code for building the AMI using packer and to automate the entire application I used Github actions.
 3)<b>infrastructure</b>:This repo has the code for provisioning AWS resources using Terraform.
 4)<b>app-cicd</b>:This repo has the code for implementing CI/CD for the webapplication and the final application is deployed in the AWS EC2 instance.
