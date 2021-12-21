@@ -1,0 +1,40 @@
+{
+    "variables": {
+        "aws_access_key": "",
+        "aws_secret_key": "",
+        "aws_region": "",
+        "source_ami": "",
+        "ssh_username": "ubuntu",
+        "subnet_id": "",
+        "nonprod_account_id": ""
+    },
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "access_key": "{{user `aws_access_key`}}",
+            "secret_key": "{{user `aws_secret_key`}}",
+            "region": "{{user `aws_region`}}",
+            "instance_type": "t2.micro",
+            "source_ami": "{{user `source_ami`}}",
+            "ami_users": ["{{user `nonprod_account_id`}}"],
+            "ssh_username": "{{user `ssh_username`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "ami_name": "csye6225_{{timestamp}}",
+            "ami_description": "Ubuntu AMI for CSYE 6225",
+            "launch_block_device_mappings": [
+                {
+                    "device_name": "/dev/sda1",
+                    "volume_size": 8,
+                    "volume_type": "gp2",
+                    "delete_on_termination": true
+                }
+            ]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "provisioner.sh"
+        }
+    ]
+}

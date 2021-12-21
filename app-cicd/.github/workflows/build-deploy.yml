@@ -1,0 +1,110 @@
+---
+name: Build and Deploy webapp
+
+env:
+  #Artifact Name: csye6225-webapp-${{github.run_number}}.zip
+  ARTIFACT_NAME: csye6225-webapp-${{github.run_number}}.zip
+  CODEDEPLOY_APPLICATION_NAME: csye6225-webapp
+  CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME: csye6225-webapp-deployment
+  AWS_REGION: ${{secrets.AWS_REGION}}
+  DB_HOSTNAME: localhost
+  DB_HOSTNAME2: localhost
+  DB_PORT: 3306
+  DB_PORT2: 3306
+  DB_DATABASE: csye6225
+  DB_DATABASE2: csye6225
+  DB_USER: root
+  DB_USER2: root
+  DB_PASSWORD: 'root'
+  DB_PASSWORD2: 'root'
+  aws_secret_access_key: ${{secrets.AWS_SECRET_KEY}}
+  aws_access_key_id: ${{secrets.AWS_ACCESS_KEY}}
+  aws_bucket_name: ${{secrets.AWS_BUCKET_NAME}}
+
+on:
+  push:
+      branches: [ main ]
+
+jobs:
+  ci_cd:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v2
+      - name: Setup JDK 1.8
+        uses: actions/setup-java@v1
+        with: 
+          java-version: 1.8
+      - name: Set up MySQL
+        run: |
+          sudo /etc/init.d/mysql start
+          sudo mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+          
+          sudo mysql -e 'SHOW DATABASES;' -uroot -proot
+          echo '*************Installing Tree*************'
+          sudo apt-get install tree
+      - name: Build with maven
+        run: |
+          cat /etc/environment
+          mvn clean install
+          pwd
+          ls
+          echo '*************Tree Strucutre Build with maven*************'
+          tree .
+      - name: Build Deployment Artifact
+        run: |
+          mkdir codedeploy_artifact
+          echo '*************Tree Strucutre Build Deployemnt Artifact After mkdir codedeploy_artifact** ***********'
+          tree .
+          zip -r ${{env.ARTIFACT_NAME}} codedeploy/*.sh appspec.yml java src bin target logs cloudwatch-config.json pom.xml resources
+          cp -rf ${{env.ARTIFACT_NAME}} codedeploy_artifact/
+          echo '*************Tree Strucutre Build Deployemnt Artifact After zip -r ${{env.ARTIFACT_NAME}} codedeploy_artifact/*************'
+          tree .
+          pwd
+          echo '*************T ree Strucutre for codedeploy_artifact/*************'
+          tree .
+          cd codedeploy_artifact
+          #echo 'Printing path'
+          pwd
+          #echo 'Listing codedeploy_artifact folders'
+          ls
+          cd .. 
+          pwd
+          ls
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with: 
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_KEY}}
+          aws-region: ${{secrets.AWS_REGION}}
+      - name: Copy Artifact to S3
+        run: |
+          #echo 'Copying artifact to s3 bucket '
+          #echo 'Printing path'
+          pwd
+          #echo 'Listing Foleders'
+          tree .
+          ls ./codedeploy_artifact
+          aws s3 sync ./codedeploy_artifact s3://${{secrets.AWS_BUCKET_NAME}}
+          #echo 'Printing environment variables'
+          echo 'CODEDEPLOY_APPLICATION_NAME'
+          echo $CODEDEPLOY_APPLICATION_NAME
+          echo 'CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME'
+          echo $CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME
+          echo 'S3_CODEDEPLOY_BUCKET'
+          echo $S3_CODEDEPLOY_BUCKET
+          echo '${{env.ARTIFACT_NAME}}'
+          echo ${{env.ARTIFACT_NAME}}
+          echo $DEPLOYMENT_ID
+      - name: CodeDeploy API call
+        run: |
+          DEPLOYMENT_ID=`aws deploy create-deployment --application-name ${{ env.CODEDEPLOY_APPLICATION_NAME }} \
+              --deployment-config-name CodeDeployDefault.AllAtOnce \
+              --deployment-group-name ${{ env.CODEDEPLOY_APPLICATION_DEPLOYMENT_GROUP_NAME }} \
+              --description "CSYE6255 - CodeDeploy" \
+              --s3-location bucket=${{ env.aws_bucket_name }},bundleType=zip,key=${{env.ARTIFACT_NAME}} \
+              --region ${{env.AWS_REGION}}`                
+            echo $DEPLOYMENT_ID
+            dId=$(echo $DEPLOYMENT_ID | jq -r '.deploymentId')
+            echo $dId
+            aws deploy wait deployment-successful --deployment-id $dId --region ${{env.AWS_REGION}}
+            aws deploy get-deployment --deployment-id $dId --query 'deploymentInfo.status' --region ${{env.AWS_REGION}}

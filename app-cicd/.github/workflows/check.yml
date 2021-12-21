@@ -1,0 +1,41 @@
+on:
+  pull_request:
+      branches: [ main ]
+
+name: Check
+
+env:
+  #Artifact Name: csye6225-webapp-${{github.run_number}}.zip
+  DB_HOSTNAME: localhost
+  DB_HOSTNAME2: localhost
+  DB_PORT: 3306
+  DB_PORT2: 3306
+  DB_DATABASE: csye6225
+  DB_DATABASE2: csye6225
+  DB_USER: root
+  DB_USER2: root
+  DB_PASSWORD: 'root'
+  DB_PASSWORD2: 'root'
+  aws_secret_access_key: ${{secrets.AWS_SECRET_KEY}}
+  aws_access_key_id: ${{secrets.AWS_ACCESS_KEY}}
+  aws_bucket_name: ${{secrets.AWS_BUCKET_NAME}}
+
+jobs:
+  check:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    # - name: Setup JDK 1.8
+    #   uses: actions/setup-java@v1
+    #   with: 
+    #       java-version: 1.8
+    - name: Set up MySQL
+      run: |
+        sudo /etc/init.d/mysql start
+        sudo mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+        sudo mysql -e 'SHOW DATABASES;' -uroot -proot
+    - name: Run tests
+      run: |
+        mvn -Dtest=AmiWebapp1ApplicationTests test

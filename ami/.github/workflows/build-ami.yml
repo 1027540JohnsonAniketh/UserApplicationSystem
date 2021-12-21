@@ -1,0 +1,23 @@
+---
+name: Build And Register Ami
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Build Packer Template
+      run: |
+          packer build \
+            -var 'aws_access_key=${{ secrets.AWS_ACCESS_KEY }}' \
+            -var 'aws_secret_key=${{ secrets.AWS_SECRET_KEY }}' \
+            -var 'aws_region=${{ secrets.AWS_REGION }}' \
+            -var 'source_ami=${{ secrets.SOURCE_AMI }}' \
+            -var 'subnet_id=${{ secrets.AWS_DEFAULT_SUBNET_ID }}' \
+            -var 'nonprod_account_id=${{ secrets.AWS_ACCOUNT_ID }}' \
+          ami.json
