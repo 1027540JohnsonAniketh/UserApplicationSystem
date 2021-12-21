@@ -4,7 +4,7 @@
 <b>The application has the following restful endpoints:</b>
 1)<b>Create a user</b>                               : /v1/users
 2)<b>Get a user</b>                                  : /v1/users/{username}
-3)<b>Update a user</b>                               : /v1/users/{usernmae}
+3)<b>Update a user</b>                               : /v1/users/{username}
 4)<b>Create a user profile image in S3 bucket</b>    : /v1/users/{username}/{imagename}
 5)<b>Get a user's profile image</b>                  : /v1/users/{username}/{imagename}
 6)<b>Update a user's profile image</b>               : /v1/users/{username}/{imagename}
