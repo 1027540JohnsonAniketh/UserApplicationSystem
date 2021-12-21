@@ -1,7 +1,7 @@
 # UserApplicationSystem
 <pre>
-<h2>This repository contains all the codebase for the backend of UserApplicationSystem.</h2>
-<h3>The application has the following restful endpoints:</h2>
+<b>This repository contains all the codebase for the backend of UserApplicationSystem.</b>
+<b>The application has the following restful endpoints:</b>
 1)<b>Create a user</b>                               : /v1/users
 2)<b>Get a user</b>                                  : /v1/users/{username}
 3)<b>Update a user</b>                               : /v1/users/{usernmae}
@@ -10,7 +10,7 @@
 6)<b>Update a user's profile image</b>               : /v1/users/{username}/{imagename}
 7)<b>Delete a user's profile image</b>               : /v1/users/{username}/{imagename}
 
-<h2>The entire repository is further divided 5 repos:</h2>
+<b>The entire repository is further divided 5 repos:</b>
 1)<b>webapp</b>:This repo has all the code of backend web application and is developed using:
   a)Java
   b)Spring Boot
