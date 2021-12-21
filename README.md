@@ -9,6 +9,7 @@
 5)<b>Get a user's profile image</b>                  : /v1/users/{username}/{imagename}
 6)<b>Update a user's profile image</b>               : /v1/users/{username}/{imagename}
 7)<b>Delete a user's profile image</b>               : /v1/users/{username}/{imagename}
+8)<b>Verify the user</b>			     : /v1/users/verifyUserEmail/{username}
 
 <b>The entire repository is further divided 5 repos:</b>
 1)<b>webapp</b>:This repo has all the code of backend web application and is developed using:
